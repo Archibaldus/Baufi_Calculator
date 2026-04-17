@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baufinanzierungs-Rechner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f4f1ea;
+  --bg-card: #fbf9f4;
+  --ink: #1a1a1a;
+  --ink-soft: #5c584f;
+  --line: #1a1a1a;
+  --accent: #c8562a;
+  --accent-soft: #e8d4c4;
+  --mint: #3d5a4c;
+  --gold: #b8934a;
+  --rule: rgba(26,26,26,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 14;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(200,86,42,0.06) 0%, transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(61,90,76,0.05) 0%, transparent 40%);
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- HEADER ---------- */
+header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 28px;
+  margin-bottom: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.masthead {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.masthead-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+h1 {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 144, 'wght' 500;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  font-style: italic;
+}
+
+h1 .em {
+  font-style: normal;
+  font-variation-settings: 'opsz' 144, 'wght' 700;
+}
+
+h1 .rule {
+  display: inline-block;
+  width: 60px;
+  height: 2px;
+  background: var(--accent);
+  vertical-align: middle;
+  margin: 0 12px 12px;
+}
+
+.header-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-align: right;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+}
+
+.header-meta strong { color: var(--ink); }
+
+/* ---------- LAYOUT ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 48px;
+}
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; }
+  .container { padding: 24px 20px 60px; }
+}
+
+/* ---------- CONTROLS ---------- */
+.controls {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 32px 28px;
+  position: relative;
+  box-shadow: 6px 6px 0 var(--line);
+  align-self: start;
+  position: sticky;
+  top: 24px;
+}
+
+.controls-label {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: var(--bg-card);
+  padding: 0 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.control-group {
+  margin-bottom: 22px;
+}
+
+.control-group:last-child { margin-bottom: 0; }
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.control-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.control-value {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 72, 'wght' 600;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.control-value .unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-left: 3px;
+  font-weight: 400;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  border-radius: 0;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 3px 3px 0 var(--accent);
+  transform: translate(-1px, -1px);
+}
+
+/* Range slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+  outline: none;
+  margin: 10px 0 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border: 2px solid var(--ink);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border: 2px solid var(--ink);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.range-bounds {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  margin-top: -2px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 24px 0;
+}
+
+.section-hdr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-hdr::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ---------- RESULTS ---------- */
+.results { display: flex; flex-direction: column; gap: 32px; }
+
+.hero-result {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-result::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(200,86,42,0.3) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.hero-amount {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 144, 'wght' 400;
+  font-size: clamp(56px, 9vw, 110px);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  position: relative;
+}
+
+.hero-amount .currency {
+  font-size: 0.5em;
+  vertical-align: super;
+  margin-right: 6px;
+  color: var(--accent);
+  font-variation-settings: 'opsz' 72, 'wght' 500;
+}
+
+.hero-amount .decimal {
+  font-size: 0.5em;
+  color: var(--accent-soft);
+}
+
+.hero-sub {
+  margin-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent-soft);
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+/* Stats grid */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid var(--line);
+  background: var(--bg-card);
+}
+
+@media (max-width: 720px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat {
+  padding: 22px 20px;
+  border-right: 1px solid var(--rule);
+  position: relative;
+}
+
+.stat:last-child { border-right: none; }
+
+@media (max-width: 720px) {
+  .stat:nth-child(2n) { border-right: none; }
+  .stat:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+}
+
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 72, 'wght' 500;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.stat-value .small {
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-variation-settings: 'opsz' 14, 'wght' 400;
+}
+
+/* ---------- CHART ---------- */
+.chart-block {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 28px;
+}
+
+.chart-block h2 {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 72, 'wght' 500;
+  font-style: italic;
+  font-size: 28px;
+  margin-bottom: 6px;
+  letter-spacing: -0.015em;
+}
+
+.chart-block .subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+}
+
+.chart-wrap {
+  position: relative;
+  height: 340px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--ink);
+}
+
+/* ---------- YEARLY TABLE ---------- */
+.yearly {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  padding: 28px;
+}
+
+.yearly h2 {
+  font-family: 'Fraunces', serif;
+  font-variation-settings: 'opsz' 72, 'wght' 500;
+  font-style: italic;
+  font-size: 28px;
+  letter-spacing: -0.015em;
+  margin-bottom: 6px;
+}
+
+.yearly .subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 -28px;
+  padding: 0 28px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+th {
+  text-align: right;
+  padding: 10px 12px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+th:first-child { text-align: left; }
+
+td {
+  padding: 9px 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+tbody tr:hover { background: rgba(200,86,42,0.04); }
+
+tbody tr.milestone {
+  background: rgba(61,90,76,0.05);
+}
+
+tbody tr.milestone td:first-child::after {
+  content: '●';
+  color: var(--mint);
+  margin-left: 6px;
+  font-size: 10px;
+}
+
+tfoot td {
+  border-top: 2px solid var(--ink);
+  border-bottom: none;
+  font-weight: 600;
+  padding-top: 14px;
+  color: var(--ink);
+}
+
+tfoot td:first-child { color: var(--ink); }
+
+/* ---------- NOTES ---------- */
+.notes {
+  padding: 24px 28px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  background-color: rgba(200,86,42,0.08);
+}
+
+.notes-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.notes p {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.notes p:last-child { margin-bottom: 0; }
+
+/* ---------- FOOTER ---------- */
+footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+footer .ornament {
+  color: var(--accent);
+  letter-spacing: 0;
+}
+
+/* warnings */
+.warning-row {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Page-load animation */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.controls, .hero-result, .stats, .chart-block, .yearly, .notes {
+  animation: reveal 0.6s ease-out backwards;
+}
+
+.controls { animation-delay: 0.05s; }
+.hero-result { animation-delay: 0.15s; }
+.stats { animation-delay: 0.25s; }
+.chart-block { animation-delay: 0.35s; }
+.yearly { animation-delay: 0.45s; }
+.notes { animation-delay: 0.55s; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div>
+      <div class="masthead">
+        <span class="masthead-dot"></span>
+        <span>Baufinanzierung · Annuitätenrechner</span>
+        <span>Stand April 2026</span>
+      </div>
+      <h1>Das <em class="em">Tilgungs</em><span class="rule"></span>journal</h1>
+    </div>
+    <div class="header-meta">
+      <strong>Volltilgerdarlehen</strong><br>
+      Deutscher Markt · EUR<br>
+      Dynamische Kalkulation
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- CONTROLS -->
+    <aside class="controls">
+      <span class="controls-label">Parameter</span>
+
+      <div class="section-hdr">Immobilie</div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Kaufpreis</span>
+          <span class="control-value" id="val-kaufpreis">700.000<span class="unit">€</span></span>
+        </div>
+        <input type="number" id="inp-kaufpreis" value="700000" min="50000" step="10000">
+        <input type="range" id="rng-kaufpreis" min="100000" max="2000000" step="10000" value="700000">
+        <div class="range-bounds"><span>100 T€</span><span>2 Mio €</span></div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Nebenkosten</span>
+          <span class="control-value" id="val-nk">10,0<span class="unit">%</span></span>
+        </div>
+        <input type="range" id="rng-nk" min="5" max="15" step="0.1" value="10">
+        <div class="range-bounds"><span>5 %</span><span>15 %</span></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-hdr">Finanzierung</div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Eigenkapital</span>
+          <span class="control-value" id="val-ek">105.000<span class="unit">€</span></span>
+        </div>
+        <input type="number" id="inp-ek" value="105000" min="0" step="5000">
+        <input type="range" id="rng-ek" min="0" max="1000000" step="5000" value="105000">
+        <div class="range-bounds"><span>0 €</span><span>1 Mio €</span></div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Sollzins p.a.</span>
+          <span class="control-value" id="val-zins">4,00<span class="unit">%</span></span>
+        </div>
+        <input type="range" id="rng-zins" min="0.5" max="8" step="0.05" value="4.00">
+        <div class="range-bounds"><span>0,5 %</span><span>8,0 %</span></div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-header">
+          <span class="control-label">Laufzeit</span>
+          <span class="control-value" id="val-laufzeit">35<span class="unit">Jahre</span></span>
+        </div>
+        <input type="range" id="rng-laufzeit" min="5" max="40" step="1" value="35">
+        <div class="range-bounds"><span>5 J.</span><span>40 J.</span></div>
+      </div>
+
+    </aside>
+
+    <!-- RESULTS -->
+    <main class="results">
+
+      <div class="hero-result">
+        <div class="hero-label">Monatliche Rate · Annuität</div>
+        <div class="hero-amount"><span class="currency">€</span><span id="res-rate">0</span><span class="decimal" id="res-rate-dec">,00</span></div>
+        <div class="hero-sub" id="res-sub">Darlehen: — · Zinsbelastung gesamt: —</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Darlehen</div>
+          <div class="stat-value" id="res-darlehen">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Nebenkosten</div>
+          <div class="stat-value" id="res-nk">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Anf. Tilgung</div>
+          <div class="stat-value" id="res-tilgung">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Zinskosten total</div>
+          <div class="stat-value" id="res-zinsen">—</div>
+        </div>
+      </div>
+
+      <div class="chart-block">
+        <h2>Verlauf der Restschuld</h2>
+        <div class="subtitle">Zins- vs. Tilgungsanteil über die Laufzeit</div>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
+        <div class="chart-legend">
+          <div class="legend-item"><span class="legend-swatch" style="background:#1a1a1a"></span> Restschuld</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#c8562a"></span> Zinsanteil kumuliert</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#3d5a4c"></span> Tilgung kumuliert</div>
+        </div>
+      </div>
+
+      <div class="yearly">
+        <h2>Jahresübersicht</h2>
+        <div class="subtitle">Alle Werte in EUR · Milestones bei 10/15/20/25/30 J.</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Jahr</th>
+                <th>Rate p.a.</th>
+                <th>Zinsen</th>
+                <th>Tilgung</th>
+                <th>Restschuld</th>
+                <th>% getilgt</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+            <tfoot id="tfoot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="notes-label">Hinweise</div>
+        <p>Der Rechner bildet ein <strong>Volltilgerdarlehen</strong> mit konstantem Zins über die gesamte Laufzeit ab. In der Praxis ist der Zins meist nur 10/15/20 Jahre gebunden; danach erfolgt eine Anschlussfinanzierung zu dann gültigen Konditionen.</p>
+        <p>Nebenkosten (Grunderwerbsteuer, Notar, Makler) variieren je nach Bundesland und Situation zwischen ~8 % (z.B. Bayern, kein Makler) und ~12 % (z.B. NRW mit Makler). Sie werden typischerweise aus Eigenkapital bezahlt und nicht mitfinanziert.</p>
+        <p>Realistischer Sollzins im April 2026 bei 80–85 % Beleihung: ca. <strong>3,7 % – 4,3 %</strong>.</p>
+      </div>
+
+    </main>
+
+  </div>
+
+  <footer>
+    <div>© Baufinanzierung · Statische Web-App</div>
+    <div class="ornament">※ ※ ※</div>
+    <div>Keine Finanzberatung · Ohne Gewähr</div>
+  </footer>
+
+</div>
+
+<script>
+// ---------- FORMATTER ----------
+const fmtEUR = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+const fmtEURdec = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtPct = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// ---------- INPUTS ----------
+const I = {
+  kaufpreis: document.getElementById('inp-kaufpreis'),
+  kaufpreisR: document.getElementById('rng-kaufpreis'),
+  nkR: document.getElementById('rng-nk'),
+  ek: document.getElementById('inp-ek'),
+  ekR: document.getElementById('rng-ek'),
+  zinsR: document.getElementById('rng-zins'),
+  laufzeitR: document.getElementById('rng-laufzeit'),
+};
+
+const V = {
+  kaufpreis: document.getElementById('val-kaufpreis'),
+  nk: document.getElementById('val-nk'),
+  ek: document.getElementById('val-ek'),
+  zins: document.getElementById('val-zins'),
+  laufzeit: document.getElementById('val-laufzeit'),
+};
+
+const R = {
+  rate: document.getElementById('res-rate'),
+  rateDec: document.getElementById('res-rate-dec'),
+  sub: document.getElementById('res-sub'),
+  darlehen: document.getElementById('res-darlehen'),
+  nk: document.getElementById('res-nk'),
+  tilgung: document.getElementById('res-tilgung'),
+  zinsen: document.getElementById('res-zinsen'),
+  tbody: document.getElementById('tbody'),
+  tfoot: document.getElementById('tfoot'),
+};
+
+// Link number + range pairs
+function link(numEl, rangeEl) {
+  numEl.addEventListener('input', () => {
+    rangeEl.value = numEl.value;
+    compute();
+  });
+  rangeEl.addEventListener('input', () => {
+    numEl.value = rangeEl.value;
+    compute();
+  });
+}
+link(I.kaufpreis, I.kaufpreisR);
+link(I.ek, I.ekR);
+I.nkR.addEventListener('input', compute);
+I.zinsR.addEventListener('input', compute);
+I.laufzeitR.addEventListener('input', compute);
+
+// ---------- CHART ----------
+const ctx = document.getElementById('chart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: { labels: [], datasets: [] },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1a1a',
+        titleFont: { family: 'JetBrains Mono', size: 11 },
+        bodyFont: { family: 'JetBrains Mono', size: 11 },
+        padding: 12,
+        borderColor: '#c8562a',
+        borderWidth: 1,
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: ${fmtEUR.format(ctx.parsed.y)} €`,
+          title: (items) => `Jahr ${items[0].label}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#5c584f', maxTicksLimit: 10 },
+        border: { color: '#1a1a1a' }
+      },
+      y: {
+        grid: { color: 'rgba(26,26,26,0.08)' },
+        ticks: {
+          font: { family: 'JetBrains Mono', size: 10 },
+          color: '#5c584f',
+          callback: (v) => fmtEUR.format(v) + ' €'
+        },
+        border: { display: false }
+      }
+    }
+  }
+});
+
+// ---------- COMPUTATION ----------
+function compute() {
+  const kaufpreis = +I.kaufpreis.value || 0;
+  const nkPct = +I.nkR.value / 100;
+  const ek = +I.ek.value || 0;
+  const zins = +I.zinsR.value / 100;
+  const years = +I.laufzeitR.value;
+
+  // Update labels
+  V.kaufpreis.innerHTML = `${fmtEUR.format(kaufpreis)}<span class="unit">€</span>`;
+  V.nk.innerHTML = `${fmtPct.format(nkPct * 100).replace('.00', ',0')}<span class="unit">%</span>`;
+  V.ek.innerHTML = `${fmtEUR.format(ek)}<span class="unit">€</span>`;
+  V.zins.innerHTML = `${fmtPct.format(zins * 100)}<span class="unit">%</span>`;
+  V.laufzeit.innerHTML = `${years}<span class="unit">Jahre</span>`;
+
+  const nebenkosten = kaufpreis * nkPct;
+  const gesamtkosten = kaufpreis + nebenkosten;
+  // Nebenkosten werden aus EK bezahlt; der Rest des EK fließt in die Immobilie
+  const ekFuerImmo = Math.max(0, ek - nebenkosten);
+  const darlehen = Math.max(0, kaufpreis - ekFuerImmo);
+  // Falls EK nicht für Nebenkosten reicht: Darlehen erhöht sich um den Fehlbetrag
+  const fehlbetragNK = Math.max(0, nebenkosten - ek);
+  const darlehenEff = darlehen + fehlbetragNK;
+
+  const n = years * 12;
+  const iM = zins / 12;
+
+  let rate;
+  if (darlehenEff <= 0) {
+    rate = 0;
+  } else if (iM === 0) {
+    rate = darlehenEff / n;
+  } else {
+    rate = darlehenEff * (iM * Math.pow(1 + iM, n)) / (Math.pow(1 + iM, n) - 1);
+  }
+
+  const gesamt = rate * n;
+  const zinsenTotal = gesamt - darlehenEff;
+  const anfTilgung = darlehenEff > 0 ? ((rate * 12 - darlehenEff * zins) / darlehenEff) : 0;
+
+  // Render hero
+  const rateInt = Math.floor(rate);
+  const rateDec = Math.round((rate - rateInt) * 100).toString().padStart(2, '0');
+  R.rate.textContent = fmtEUR.format(rateInt);
+  R.rateDec.textContent = ',' + rateDec;
+
+  // Warnings in subtitle
+  let subParts = [`Darlehen: ${fmtEUR.format(darlehenEff)} €`, `Zinsbelastung gesamt: ${fmtEUR.format(zinsenTotal)} €`];
+  if (fehlbetragNK > 0) {
+    subParts.push(`⚠ EK deckt Nebenkosten nicht (Fehlbetrag ${fmtEUR.format(fehlbetragNK)} € mitfinanziert)`);
+  }
+  R.sub.textContent = subParts.join(' · ');
+
+  R.darlehen.innerHTML = `${fmtEUR.format(darlehenEff)}<span class="small"> €</span>`;
+  R.nk.innerHTML = `${fmtEUR.format(nebenkosten)}<span class="small"> €</span>`;
+  R.tilgung.innerHTML = `${fmtPct.format(anfTilgung * 100)}<span class="small"> %</span>`;
+  R.zinsen.innerHTML = `${fmtEUR.format(zinsenTotal)}<span class="small"> €</span>`;
+
+  // Build year-by-year
+  let balance = darlehenEff;
+  const labels = ['0'];
+  const balances = [balance];
+  const zinsCum = [0];
+  const tilgCum = [0];
+
+  let cumZins = 0, cumTilg = 0;
+  const rows = [];
+  const milestoneYears = new Set([10, 15, 20, 25, 30]);
+
+  for (let y = 1; y <= years; y++) {
+    let yZins = 0, yTilg = 0;
+    for (let m = 0; m < 12; m++) {
+      if (balance <= 0) break;
+      const zinsM = balance * iM;
+      let tilgM = rate - zinsM;
+      if (tilgM > balance) tilgM = balance;
+      balance -= tilgM;
+      yZins += zinsM;
+      yTilg += tilgM;
+    }
+    cumZins += yZins;
+    cumTilg += yTilg;
+    rows.push({
+      year: y,
+      rateY: yZins + yTilg,
+      zins: yZins,
+      tilg: yTilg,
+      balance: Math.max(0, balance),
+      pctTilg: darlehenEff > 0 ? (cumTilg / darlehenEff) * 100 : 0,
+      milestone: milestoneYears.has(y)
+    });
+    labels.push(y.toString());
+    balances.push(Math.max(0, balance));
+    zinsCum.push(cumZins);
+    tilgCum.push(cumTilg);
+  }
+
+  // Render table
+  R.tbody.innerHTML = rows.map(r => `
+    <tr class="${r.milestone ? 'milestone' : ''}">
+      <td>${r.year}</td>
+      <td>${fmtEUR.format(r.rateY)}</td>
+      <td>${fmtEUR.format(r.zins)}</td>
+      <td>${fmtEUR.format(r.tilg)}</td>
+      <td>${fmtEUR.format(r.balance)}</td>
+      <td>${fmtPct.format(r.pctTilg)} %</td>
+    </tr>
+  `).join('');
+
+  R.tfoot.innerHTML = `
+    <tr>
+      <td>Σ</td>
+      <td>${fmtEUR.format(gesamt)}</td>
+      <td>${fmtEUR.format(zinsenTotal)}</td>
+      <td>${fmtEUR.format(darlehenEff)}</td>
+      <td>—</td>
+      <td>100,00 %</td>
+    </tr>
+  `;
+
+  // Update chart
+  chart.data.labels = labels;
+  chart.data.datasets = [
+    {
+      label: 'Restschuld',
+      data: balances,
+      borderColor: '#1a1a1a',
+      backgroundColor: 'rgba(26,26,26,0.06)',
+      borderWidth: 2.5,
+      tension: 0.15,
+      fill: true,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: '#1a1a1a',
+    },
+    {
+      label: 'Zinsen kumuliert',
+      data: zinsCum,
+      borderColor: '#c8562a',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5, 4],
+      tension: 0.15,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: '#c8562a',
+    },
+    {
+      label: 'Tilgung kumuliert',
+      data: tilgCum,
+      borderColor: '#3d5a4c',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: 0.15,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: '#3d5a4c',
+    }
+  ];
+  chart.update('none');
+}
+
+compute();
+</script>
+</body>
+</html>

@@ -2,7 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4f1ea">
 <title>Baufinanzierungs-Rechner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +25,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   font-family: 'Fraunces', serif;
@@ -36,9 +40,9 @@ body {
   background-image:
     radial-gradient(circle at 15% 20%, rgba(200,86,42,0.06) 0%, transparent 40%),
     radial-gradient(circle at 85% 75%, rgba(61,90,76,0.05) 0%, transparent 40%);
+  overflow-x: hidden;
 }
 
-/* Grain overlay */
 body::before {
   content: '';
   position: fixed;
@@ -58,7 +62,7 @@ body::before {
   z-index: 2;
 }
 
-/* ---------- HEADER ---------- */
+/* HEADER */
 header {
   border-bottom: 1px solid var(--line);
   padding-bottom: 28px;
@@ -78,8 +82,9 @@ header {
   color: var(--ink-soft);
   margin-bottom: 12px;
   display: flex;
-  gap: 24px;
+  gap: 16px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .masthead-dot {
@@ -88,15 +93,18 @@ header {
   background: var(--accent);
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 h1 {
   font-family: 'Fraunces', serif;
   font-variation-settings: 'opsz' 144, 'wght' 500;
-  font-size: clamp(48px, 7vw, 96px);
+  font-size: clamp(40px, 7vw, 96px);
   line-height: 0.92;
   letter-spacing: -0.035em;
   font-style: italic;
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 h1 .em {
@@ -124,19 +132,14 @@ h1 .rule {
 
 .header-meta strong { color: var(--ink); }
 
-/* ---------- LAYOUT ---------- */
+/* LAYOUT */
 .layout {
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 48px;
 }
 
-@media (max-width: 960px) {
-  .layout { grid-template-columns: 1fr; }
-  .container { padding: 24px 20px 60px; }
-}
-
-/* ---------- CONTROLS ---------- */
+/* CONTROLS */
 .controls {
   background: var(--bg-card);
   border: 1px solid var(--line);
@@ -173,6 +176,8 @@ h1 .rule {
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 8px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .control-label {
@@ -181,6 +186,7 @@ h1 .rule {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-soft);
+  flex-shrink: 0;
 }
 
 .control-value {
@@ -189,6 +195,7 @@ h1 .rule {
   font-size: 22px;
   color: var(--ink);
   letter-spacing: -0.01em;
+  text-align: right;
 }
 
 .control-value .unit {
@@ -201,15 +208,17 @@ h1 .rule {
 
 input[type="number"] {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px;
   border: 1px solid var(--line);
   background: var(--bg);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--ink);
   margin-bottom: 10px;
   transition: all 0.2s;
   border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input[type="number"]:focus {
@@ -219,36 +228,48 @@ input[type="number"]:focus {
   transform: translate(-1px, -1px);
 }
 
-/* Range slider */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
+  height: 32px;
+  background: transparent;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
   height: 2px;
   background: var(--line);
-  outline: none;
-  margin: 10px 0 4px;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: var(--line);
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   background: var(--accent);
   border: 2px solid var(--ink);
   cursor: pointer;
   border-radius: 50%;
   transition: transform 0.15s;
+  margin-top: -11px;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.2);
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   background: var(--accent);
   border: 2px solid var(--ink);
   cursor: pointer;
@@ -261,7 +282,7 @@ input[type="range"]::-moz-range-thumb {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--ink-soft);
-  margin-top: -2px;
+  margin-top: 2px;
 }
 
 .divider {
@@ -289,8 +310,8 @@ input[type="range"]::-moz-range-thumb {
   background: var(--rule);
 }
 
-/* ---------- RESULTS ---------- */
-.results { display: flex; flex-direction: column; gap: 32px; }
+/* RESULTS */
+.results { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
 
 .hero-result {
   background: var(--ink);
@@ -324,10 +345,11 @@ input[type="range"]::-moz-range-thumb {
 .hero-amount {
   font-family: 'Fraunces', serif;
   font-variation-settings: 'opsz' 144, 'wght' 400;
-  font-size: clamp(56px, 9vw, 110px);
+  font-size: clamp(48px, 9vw, 110px);
   line-height: 0.95;
   letter-spacing: -0.035em;
   position: relative;
+  word-break: break-word;
 }
 
 .hero-amount .currency {
@@ -350,6 +372,8 @@ input[type="range"]::-moz-range-thumb {
   color: var(--accent-soft);
   letter-spacing: 0.05em;
   position: relative;
+  line-height: 1.6;
+  word-break: break-word;
 }
 
 /* Stats grid */
@@ -361,22 +385,14 @@ input[type="range"]::-moz-range-thumb {
   background: var(--bg-card);
 }
 
-@media (max-width: 720px) {
-  .stats { grid-template-columns: repeat(2, 1fr); }
-}
-
 .stat {
   padding: 22px 20px;
   border-right: 1px solid var(--rule);
   position: relative;
+  min-width: 0;
 }
 
 .stat:last-child { border-right: none; }
-
-@media (max-width: 720px) {
-  .stat:nth-child(2n) { border-right: none; }
-  .stat:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
-}
 
 .stat-label {
   font-family: 'JetBrains Mono', monospace;
@@ -393,6 +409,7 @@ input[type="range"]::-moz-range-thumb {
   font-size: 28px;
   line-height: 1.05;
   letter-spacing: -0.02em;
+  word-break: break-word;
 }
 
 .stat-value .small {
@@ -401,11 +418,12 @@ input[type="range"]::-moz-range-thumb {
   font-variation-settings: 'opsz' 14, 'wght' 400;
 }
 
-/* ---------- CHART ---------- */
+/* CHART */
 .chart-block {
   background: var(--bg-card);
   border: 1px solid var(--line);
   padding: 28px;
+  min-width: 0;
 }
 
 .chart-block h2 {
@@ -452,13 +470,15 @@ input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border: 1px solid var(--ink);
+  flex-shrink: 0;
 }
 
-/* ---------- YEARLY TABLE ---------- */
+/* YEARLY TABLE */
 .yearly {
   background: var(--bg-card);
   border: 1px solid var(--line);
   padding: 28px;
+  min-width: 0;
 }
 
 .yearly h2 {
@@ -482,6 +502,7 @@ input[type="range"]::-moz-range-thumb {
   overflow-x: auto;
   margin: 0 -28px;
   padding: 0 28px;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -489,6 +510,7 @@ table {
   border-collapse: collapse;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
+  min-width: 540px;
 }
 
 th {
@@ -541,11 +563,21 @@ tfoot td {
 
 tfoot td:first-child { color: var(--ink); }
 
-/* ---------- NOTES ---------- */
+.scroll-hint {
+  display: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-soft);
+  margin-top: 10px;
+  letter-spacing: 0.05em;
+  text-align: center;
+  font-style: italic;
+}
+
+/* NOTES */
 .notes {
   padding: 24px 28px;
   border-left: 3px solid var(--accent);
-  background: var(--accent-soft);
   background-color: rgba(200,86,42,0.08);
 }
 
@@ -569,7 +601,7 @@ tfoot td:first-child { color: var(--ink); }
 
 .notes p:last-child { margin-bottom: 0; }
 
-/* ---------- FOOTER ---------- */
+/* FOOTER */
 footer {
   margin-top: 80px;
   padding-top: 24px;
@@ -590,13 +622,226 @@ footer .ornament {
   letter-spacing: 0;
 }
 
-/* warnings */
-.warning-row {
-  color: var(--accent);
-  font-weight: 600;
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+@media (max-width: 960px) {
+  .container {
+    padding: 32px 24px 60px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .controls {
+    position: static;
+  }
+
+  header {
+    margin-bottom: 32px;
+  }
+
+  .header-meta {
+    text-align: left;
+  }
 }
 
-/* Page-load animation */
+@media (max-width: 640px) {
+  .container {
+    padding: 24px 16px 48px;
+  }
+
+  header {
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    gap: 12px;
+  }
+
+  .masthead {
+    font-size: 10px;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 11vw, 56px);
+    line-height: 0.95;
+  }
+
+  h1 .rule {
+    width: 36px;
+    margin: 0 8px 8px;
+  }
+
+  .header-meta {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+
+  .controls {
+    padding: 28px 20px 24px;
+    box-shadow: 4px 4px 0 var(--line);
+  }
+
+  .control-value {
+    font-size: 18px;
+  }
+
+  .control-value .unit {
+    font-size: 10px;
+  }
+
+  .hero-result {
+    padding: 28px 24px;
+  }
+
+  .hero-result::before {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-label {
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+
+  .hero-amount {
+    font-size: clamp(44px, 13vw, 64px);
+  }
+
+  .hero-sub {
+    margin-top: 14px;
+    font-size: 11px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat {
+    padding: 18px 16px;
+  }
+
+  .stat:nth-child(odd) {
+    border-right: 1px solid var(--rule);
+  }
+
+  .stat:nth-child(even) {
+    border-right: none;
+  }
+
+  .stat:nth-child(-n+2) {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .stat-value .small {
+    font-size: 12px;
+  }
+
+  .chart-block, .yearly {
+    padding: 24px 20px;
+  }
+
+  .chart-block h2, .yearly h2 {
+    font-size: 24px;
+  }
+
+  .chart-wrap {
+    height: 280px;
+  }
+
+  .chart-legend {
+    gap: 14px;
+    font-size: 10px;
+  }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+  }
+
+  .table-wrap {
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+
+  .scroll-hint {
+    display: block;
+  }
+
+  table {
+    font-size: 11px;
+  }
+
+  th, td {
+    padding: 8px 10px;
+  }
+
+  .notes {
+    padding: 20px 22px;
+  }
+
+  .notes p {
+    font-size: 13px;
+  }
+
+  footer {
+    margin-top: 48px;
+    font-size: 9px;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .container {
+    padding: 20px 12px 40px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 11vw, 44px);
+  }
+
+  .hero-amount {
+    font-size: clamp(40px, 13vw, 52px);
+  }
+
+  .controls {
+    padding: 24px 16px 20px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat {
+    border-right: none !important;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .stat:last-child {
+    border-bottom: none;
+  }
+
+  .control-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .control-value {
+    text-align: left;
+  }
+}
+
 @keyframes reveal {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -612,6 +857,13 @@ footer .ornament {
 .chart-block { animation-delay: 0.35s; }
 .yearly { animation-delay: 0.45s; }
 .notes { animation-delay: 0.55s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -635,7 +887,6 @@ footer .ornament {
 
   <div class="layout">
 
-    <!-- CONTROLS -->
     <aside class="controls">
       <span class="controls-label">Parameter</span>
 
@@ -646,7 +897,7 @@ footer .ornament {
           <span class="control-label">Kaufpreis</span>
           <span class="control-value" id="val-kaufpreis">700.000<span class="unit">€</span></span>
         </div>
-        <input type="number" id="inp-kaufpreis" value="700000" min="50000" step="10000">
+        <input type="number" id="inp-kaufpreis" value="700000" min="50000" step="10000" inputmode="numeric">
         <input type="range" id="rng-kaufpreis" min="100000" max="2000000" step="10000" value="700000">
         <div class="range-bounds"><span>100 T€</span><span>2 Mio €</span></div>
       </div>
@@ -668,7 +919,7 @@ footer .ornament {
           <span class="control-label">Eigenkapital</span>
           <span class="control-value" id="val-ek">105.000<span class="unit">€</span></span>
         </div>
-        <input type="number" id="inp-ek" value="105000" min="0" step="5000">
+        <input type="number" id="inp-ek" value="105000" min="0" step="5000" inputmode="numeric">
         <input type="range" id="rng-ek" min="0" max="1000000" step="5000" value="105000">
         <div class="range-bounds"><span>0 €</span><span>1 Mio €</span></div>
       </div>
@@ -693,7 +944,6 @@ footer .ornament {
 
     </aside>
 
-    <!-- RESULTS -->
     <main class="results">
 
       <div class="hero-result">
@@ -727,7 +977,7 @@ footer .ornament {
         <div class="chart-wrap"><canvas id="chart"></canvas></div>
         <div class="chart-legend">
           <div class="legend-item"><span class="legend-swatch" style="background:#1a1a1a"></span> Restschuld</div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#c8562a"></span> Zinsanteil kumuliert</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#c8562a"></span> Zinsen kumuliert</div>
           <div class="legend-item"><span class="legend-swatch" style="background:#3d5a4c"></span> Tilgung kumuliert</div>
         </div>
       </div>
@@ -751,6 +1001,7 @@ footer .ornament {
             <tfoot id="tfoot"></tfoot>
           </table>
         </div>
+        <div class="scroll-hint">← horizontal scrollen für alle Spalten →</div>
       </div>
 
       <div class="notes">
@@ -773,12 +1024,9 @@ footer .ornament {
 </div>
 
 <script>
-// ---------- FORMATTER ----------
 const fmtEUR = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
-const fmtEURdec = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// ---------- INPUTS ----------
 const I = {
   kaufpreis: document.getElementById('inp-kaufpreis'),
   kaufpreisR: document.getElementById('rng-kaufpreis'),
@@ -809,7 +1057,6 @@ const R = {
   tfoot: document.getElementById('tfoot'),
 };
 
-// Link number + range pairs
 function link(numEl, rangeEl) {
   numEl.addEventListener('input', () => {
     rangeEl.value = numEl.value;
@@ -826,7 +1073,6 @@ I.nkR.addEventListener('input', compute);
 I.zinsR.addEventListener('input', compute);
 I.laufzeitR.addEventListener('input', compute);
 
-// ---------- CHART ----------
 const ctx = document.getElementById('chart').getContext('2d');
 const chart = new Chart(ctx, {
   type: 'line',
@@ -853,7 +1099,7 @@ const chart = new Chart(ctx, {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#5c584f', maxTicksLimit: 10 },
+        ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#5c584f', maxTicksLimit: 8 },
         border: { color: '#1a1a1a' }
       },
       y: {
@@ -861,7 +1107,11 @@ const chart = new Chart(ctx, {
         ticks: {
           font: { family: 'JetBrains Mono', size: 10 },
           color: '#5c584f',
-          callback: (v) => fmtEUR.format(v) + ' €'
+          callback: (v) => {
+            if (v >= 1000000) return (v/1000000).toFixed(1).replace('.',',') + ' Mio';
+            if (v >= 1000) return (v/1000).toFixed(0) + ' T€';
+            return v + ' €';
+          }
         },
         border: { display: false }
       }
@@ -869,7 +1119,6 @@ const chart = new Chart(ctx, {
   }
 });
 
-// ---------- COMPUTATION ----------
 function compute() {
   const kaufpreis = +I.kaufpreis.value || 0;
   const nkPct = +I.nkR.value / 100;
@@ -877,7 +1126,6 @@ function compute() {
   const zins = +I.zinsR.value / 100;
   const years = +I.laufzeitR.value;
 
-  // Update labels
   V.kaufpreis.innerHTML = `${fmtEUR.format(kaufpreis)}<span class="unit">€</span>`;
   V.nk.innerHTML = `${fmtPct.format(nkPct * 100).replace('.00', ',0')}<span class="unit">%</span>`;
   V.ek.innerHTML = `${fmtEUR.format(ek)}<span class="unit">€</span>`;
@@ -885,11 +1133,8 @@ function compute() {
   V.laufzeit.innerHTML = `${years}<span class="unit">Jahre</span>`;
 
   const nebenkosten = kaufpreis * nkPct;
-  const gesamtkosten = kaufpreis + nebenkosten;
-  // Nebenkosten werden aus EK bezahlt; der Rest des EK fließt in die Immobilie
   const ekFuerImmo = Math.max(0, ek - nebenkosten);
   const darlehen = Math.max(0, kaufpreis - ekFuerImmo);
-  // Falls EK nicht für Nebenkosten reicht: Darlehen erhöht sich um den Fehlbetrag
   const fehlbetragNK = Math.max(0, nebenkosten - ek);
   const darlehenEff = darlehen + fehlbetragNK;
 
@@ -909,13 +1154,11 @@ function compute() {
   const zinsenTotal = gesamt - darlehenEff;
   const anfTilgung = darlehenEff > 0 ? ((rate * 12 - darlehenEff * zins) / darlehenEff) : 0;
 
-  // Render hero
   const rateInt = Math.floor(rate);
   const rateDec = Math.round((rate - rateInt) * 100).toString().padStart(2, '0');
   R.rate.textContent = fmtEUR.format(rateInt);
   R.rateDec.textContent = ',' + rateDec;
 
-  // Warnings in subtitle
   let subParts = [`Darlehen: ${fmtEUR.format(darlehenEff)} €`, `Zinsbelastung gesamt: ${fmtEUR.format(zinsenTotal)} €`];
   if (fehlbetragNK > 0) {
     subParts.push(`⚠ EK deckt Nebenkosten nicht (Fehlbetrag ${fmtEUR.format(fehlbetragNK)} € mitfinanziert)`);
@@ -927,7 +1170,6 @@ function compute() {
   R.tilgung.innerHTML = `${fmtPct.format(anfTilgung * 100)}<span class="small"> %</span>`;
   R.zinsen.innerHTML = `${fmtEUR.format(zinsenTotal)}<span class="small"> €</span>`;
 
-  // Build year-by-year
   let balance = darlehenEff;
   const labels = ['0'];
   const balances = [balance];
@@ -966,7 +1208,6 @@ function compute() {
     tilgCum.push(cumTilg);
   }
 
-  // Render table
   R.tbody.innerHTML = rows.map(r => `
     <tr class="${r.milestone ? 'milestone' : ''}">
       <td>${r.year}</td>
@@ -989,7 +1230,6 @@ function compute() {
     </tr>
   `;
 
-  // Update chart
   chart.data.labels = labels;
   chart.data.datasets = [
     {
